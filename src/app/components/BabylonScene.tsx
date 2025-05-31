@@ -29,8 +29,13 @@ const BabylonScene = () => {
     camera.attachControl(canvasRef.current, true);
     camera.speed = 0.2;
 
-    // 矢印（Cylinder）を生成する関数
-    const createArrow = (name: string, direction: Vector3, color: Color3) => {
+    // 矢印をワールド空間に固定設置（カメラに追従しない）
+    const createArrow = (
+      name: string,
+      direction: Vector3,
+      color: Color3,
+      position: Vector3
+    ) => {
       const arrow = MeshBuilder.CreateCylinder(name, {
         height: 1,
         diameterTop: 0,
@@ -41,19 +46,21 @@ const BabylonScene = () => {
       material.diffuseColor = color;
       arrow.material = material;
 
-      // 回転方向を矢印に合わせる
+      // 向きを方向ベクトルに合わせて回転
       arrow.rotation = Vector3.RotationFromAxis(direction, Vector3.Up(), Vector3.Right());
-      arrow.position = direction.normalize().scale(1.5); // カメラ中心から少し離す
-      arrow.parent = camera; // カメラに追従させる
+
+      // ワールド空間上の絶対座標に設置
+      arrow.position = position;
 
       return arrow;
     };
 
-    // 上下左右の矢印を作成
-    createArrow('arrow-forward', Vector3.Forward(), Color3.Blue());   // 前方
-    createArrow('arrow-backward', Vector3.Backward(), Color3.Red()); // 後方
-    createArrow('arrow-left', Vector3.Left(), Color3.Green());       // 左
-    createArrow('arrow-right', Vector3.Right(), Color3.Yellow());    // 右
+    // 原点周辺に矢印を設置（上下左右）
+    createArrow('arrow-forward', Vector3.Forward(), Color3.Blue(), new Vector3(0, 1, 2));   // 前
+    createArrow('arrow-backward', Vector3.Backward(), Color3.Red(), new Vector3(0, 1, -2)); // 後
+    createArrow('arrow-left', Vector3.Left(), Color3.Green(), new Vector3(-2, 1, 0));       // 左
+    createArrow('arrow-right', Vector3.Right(), Color3.Yellow(), new Vector3(2, 1, 0));     // 右
+
 
 
     new HemisphericLight('light', new Vector3(0, 1, 0), scene);
