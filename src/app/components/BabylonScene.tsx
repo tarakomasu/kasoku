@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react'; // useState を追加
+
 import {
   Engine,
   Scene,
@@ -21,6 +22,11 @@ import {
 const BabylonScene = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const [orientation, setOrientation] = useState({
+    alpha: 0,
+    beta: 0,
+    gamma: 0
+  });  
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -123,6 +129,12 @@ const BabylonScene = () => {
 
         // カメラの回転に適用
         camera.rotationQuaternion = quaternion;
+
+        setOrientation({
+          alpha: event.alpha,
+          beta: event.beta,
+          gamma: event.gamma
+        });
       }
     };
 
@@ -162,7 +174,27 @@ const BabylonScene = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} style={{ width: '100%', height: '100vh', display: 'block' }} />;
-};
+  return (
+    <>
+      <canvas ref={canvasRef} style={{ width: '100%', height: '100vh', display: 'block' }} />
+      <div
+        style={{
+          position: 'fixed',
+          top: 10,
+          right: 10,
+          background: 'rgba(0,0,0,0.6)',
+          color: 'white',
+          padding: '10px',
+          fontSize: '14px',
+          borderRadius: '8px',
+          zIndex: 10,
+        }}
+      >
+        <div>Alpha（ヨー）: {orientation.alpha.toFixed(1)}°</div>
+        <div>Beta（ピッチ）: {orientation.beta.toFixed(1)}°</div>
+        <div>Gamma（ロール）: {orientation.gamma.toFixed(1)}°</div>
+      </div>
+    </>
+  );};
 
 export default BabylonScene;
