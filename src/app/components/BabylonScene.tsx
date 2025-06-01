@@ -29,42 +29,45 @@ const BabylonScene = () => {
     camera.attachControl(canvasRef.current, true);
     camera.speed = 0.2;
 
-    // 矢印をワールド空間に固定設置（カメラに追従しない）
-    const createArrow = (
-      name: string,
-      direction: Vector3,
-      color: Color3,
-      position: Vector3
-    ) => {
-      const arrow = MeshBuilder.CreateCylinder(name, {
-        height: 1,
-        diameterTop: 0,
-        diameterBottom: 0.1,
-      }, scene);
+    MeshBuilder.CreateGround('ground', { width: 20, height: 20 }, scene);
 
-      const material = new StandardMaterial(`${name}-mat`, scene);
-      material.diffuseColor = color;
-      arrow.material = material;
+    const frontBox = MeshBuilder.CreateBox('boxName', { size: 20 }, scene);
+    const frontMat = new StandardMaterial('matName', scene);
+    frontMat.diffuseColor = Color3.Red(); // 赤色
 
-      // 向きを方向ベクトルに合わせて回転
-      arrow.rotation = Vector3.RotationFromAxis(direction, Vector3.Up(), Vector3.Right());
+    frontBox.material = frontMat; // さっき作った box に色を適用
+    frontBox.position = new Vector3(0, 0, 30); // X, Y, Z 座標に設置
 
-      // ワールド空間上の絶対座標に設置
-      arrow.position = position;
+    const rightBox = MeshBuilder.CreateBox('boxName', { size: 20 }, scene);
+    const rightMat = new StandardMaterial('matName', scene);
+    rightMat.diffuseColor = Color3.Green(); // 赤色
 
-      return arrow;
-    };
+    rightBox.material = rightMat; // さっき作った box に色を適用
+    rightBox.position = new Vector3(30, 0, 0); // X, Y, Z 座標に設置
 
-    // 原点周辺に矢印を設置（上下左右）
-    createArrow('arrow-forward', Vector3.Forward(), Color3.Blue(), new Vector3(0, 1, 2));   // 前
-    createArrow('arrow-backward', Vector3.Backward(), Color3.Red(), new Vector3(0, 1, -2)); // 後
-    createArrow('arrow-left', Vector3.Left(), Color3.Green(), new Vector3(-2, 1, 0));       // 左
-    createArrow('arrow-right', Vector3.Right(), Color3.Yellow(), new Vector3(2, 1, 0));     // 右
+    const leftBox = MeshBuilder.CreateBox('boxName', { size: 20 }, scene);
+    const leftMat = new StandardMaterial('matName', scene);
+    leftMat.diffuseColor = Color3.Yellow(); // 赤色
 
+    leftBox.material = leftMat; // さっき作った box に色を適用
+    leftBox.position = new Vector3(-30, 0, 0); // X, Y, Z 座標に設置
 
+    const backBox = MeshBuilder.CreateBox('boxName', { size: 20 }, scene);
+    const backMat = new StandardMaterial('matName', scene);
+    backMat.diffuseColor = Color3.Blue(); // 赤色
 
-    new HemisphericLight('light', new Vector3(0, 1, 0), scene);
+    backBox.material = backMat; // さっき作った box に色を適用
+    backBox.position = new Vector3(0, 0, -30); // X, Y, Z 座標に設置
 
+    const topBox = MeshBuilder.CreateBox('boxName', { size: 20 }, scene);
+    const topMat = new StandardMaterial('matName', scene);
+    topMat.diffuseColor = Color3.White(); // 赤色
+
+    topBox.material = topMat; // さっき作った box に色を適用
+    topBox.position = new Vector3(0, 30, 0); // X, Y, Z 座標に設置
+
+    const right = new HemisphericLight('light', new Vector3(0, 1, 0), scene);
+    right.intensity = 2.0
     // 敵生成
     const enemyCount = 30;
     const radius = 10;
