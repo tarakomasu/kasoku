@@ -14,6 +14,8 @@ import {
   KeyboardEventTypes,
   Mesh,
   Tools,
+  Quaternion,
+  Matrix
 } from '@babylonjs/core';
 
 const BabylonScene = () => {
@@ -28,6 +30,7 @@ const BabylonScene = () => {
     const camera = new FreeCamera('camera', new Vector3(0, 1.6, 0), scene);
     camera.attachControl(canvasRef.current, true);
     camera.speed = 0.2;
+    camera.rotationQuaternion = Quaternion.Identity()
 
     MeshBuilder.CreateGround('ground', { width: 20, height: 20 }, scene);
 
@@ -105,15 +108,21 @@ const BabylonScene = () => {
     });
 
     // デバイスの方向に基づくカメラの回転
+// デバイスの方向に基づくカメラの回転（Quaternion版）
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (event.alpha !== null && event.beta !== null && event.gamma !== null) {
-        const alpha = Tools.ToRadians(event.alpha); // Yaw
-        const beta = Tools.ToRadians(event.beta);   // Pitch
-        const gamma = Tools.ToRadians(event.gamma); // Roll
+        const alpha = Tools.ToRadians(event.alpha); // yaw（左右）
+        const beta = Tools.ToRadians(event.beta);   // pitch（上下）
+        const gamma = Tools.ToRadians(event.gamma); // roll（横ひねり）
 
-        // yaw (左右) と pitch (上下) を camera.rotation に適用
-        camera.rotation.y = alpha;
-        camera.rotation.x = beta - Math.PI / 2; // 調整：デフォルトで真下を見る補正
+        // ZXY 順の回転マトリックスを作成
+        const rotationMatrix = Matrix.RotationYawPitchRoll(alpha, beta - Math.PI / 2, gamma);
+
+        // Quaternion に変換
+        const quaternion = Quaternion.FromRotationMatrix(rotationMatrix);
+
+        // カメラの回転に適用
+        camera.rotationQuaternion = quaternion;
       }
     };
 
