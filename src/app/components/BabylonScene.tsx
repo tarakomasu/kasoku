@@ -116,7 +116,7 @@ const BabylonScene = () => {
         const gamma = Tools.ToRadians(event.gamma); // roll（横ひねり）
 
         // ZXY 順の回転マトリックスを作成
-        const rotationMatrix = Matrix.RotationYawPitchRoll(alpha, beta - Math.PI / 2, gamma*0.1);
+        const rotationMatrix = Matrix.RotationYawPitchRoll(alpha*2, beta - Math.PI / 2, gamma*0.01);
 
         // Quaternion に変換
         const quaternion = Quaternion.FromRotationMatrix(rotationMatrix);
