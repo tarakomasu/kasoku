@@ -21,12 +21,14 @@ import {
 const BabylonScene = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [orientation, setOrientation] = useState({
-    alpha: 0,
-    beta: 0,
-    gamma: 0
-  });
+  const [orientation, setOrientation] = useState({ alpha: 0, beta: 0, gamma: 0 });
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [movement, setMovement] = useState({ x: 0, z: 0 });
+
+  // 速度と位置を useRef で保存
+  const velocityRef = useRef({ x: 0, z: 0 });
+  const positionRef = useRef({ x: 0, z: 0 });
+  const lastUpdateTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!canvasRef.current || !permissionGranted) return;
@@ -105,7 +107,36 @@ const BabylonScene = () => {
       }
     };
 
+    const handleMotion = (event: DeviceMotionEvent) => {
+      const now = Date.now();
+      if (lastUpdateTimeRef.current == null) {
+        lastUpdateTimeRef.current = now;
+        return;
+      }
+
+      const dt = (now - lastUpdateTimeRef.current) / 1000; // 秒
+      lastUpdateTimeRef.current = now;
+
+      const acc = event.accelerationIncludingGravity;
+      if (!acc || acc.x === null || acc.z === null) return;
+
+      const ax = acc.x; // m/s²
+      const az = acc.z; // m/s²
+
+      velocityRef.current.x += ax * dt;
+      velocityRef.current.z += az * dt;
+
+      positionRef.current.x += velocityRef.current.x * dt;
+      positionRef.current.z += velocityRef.current.z * dt;
+
+      setMovement({
+        x: positionRef.current.x,
+        z: positionRef.current.z
+      });
+    };
+
     window.addEventListener('deviceorientation', handleOrientation, true);
+    window.addEventListener('devicemotion', handleMotion, true);
 
     scene.onBeforeRenderObservable.add(() => {
       const forward = camera.getDirection(Vector3.Forward());
@@ -136,6 +167,7 @@ const BabylonScene = () => {
       engine.dispose();
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener('devicemotion', handleMotion);
     };
   }, [permissionGranted]);
 
@@ -156,7 +188,6 @@ const BabylonScene = () => {
         alert('センサーの許可に失敗しました。');
       }
     } else {
-      // AndroidやPCなど
       setPermissionGranted(true);
     }
   };
@@ -196,6 +227,9 @@ const BabylonScene = () => {
         <div>Alpha（ヨー）: {orientation.alpha.toFixed(1)}°</div>
         <div>Beta（ピッチ）: {orientation.beta.toFixed(1)}°</div>
         <div>Gamma（ロール）: {orientation.gamma.toFixed(1)}°</div>
+        <hr style={{ margin: '8px 0', borderColor: '#444' }} />
+        <div>X軸移動距離: {movement.x.toFixed(2)} m</div>
+        <div>Z軸移動距離: {movement.z.toFixed(2)} m</div>
       </div>
     </>
   );
