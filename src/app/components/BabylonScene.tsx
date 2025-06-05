@@ -23,12 +23,7 @@ const BabylonScene = () => {
 
   const [orientation, setOrientation] = useState({ alpha: 0, beta: 0, gamma: 0 });
   const [permissionGranted, setPermissionGranted] = useState(false);
-  const [movement, setMovement] = useState({ x: 0, z: 0 });
 
-  // 速度と位置を useRef で保存
-  const velocityRef = useRef({ x: 0, z: 0 });
-  const positionRef = useRef({ x: 0, z: 0 });
-  const lastUpdateTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!canvasRef.current || !permissionGranted) return;
@@ -92,11 +87,24 @@ const BabylonScene = () => {
         const beta = Tools.ToRadians(event.beta);   // pitch
         const gamma = Tools.ToRadians(event.gamma); // roll
 
-        const rotationMatrix = Matrix.RotationYawPitchRoll(
-          gamma,
-          -beta + Math.PI / 2,
-          alpha * 0.01
-        );
+        let rotationMatrix;
+        
+        const fixedBeta = parseFloat(beta.toFixed(1));
+
+        if (fixedBeta > 85 && fixedBeta < 95) {
+          rotationMatrix= Matrix.RotationYawPitchRoll(
+            gamma,
+            -beta + Math.PI / 2,
+            alpha * 0.01
+          );
+        }
+        else{
+          rotationMatrix= Matrix.RotationYawPitchRoll(
+            0,
+            -beta + Math.PI / 2,
+            alpha * 0.01
+          );
+        }
         camera.rotationQuaternion = Quaternion.FromRotationMatrix(rotationMatrix);
 
         setOrientation({
@@ -107,10 +115,7 @@ const BabylonScene = () => {
       }
     };
 
-
-
     window.addEventListener('deviceorientation', handleOrientation, true);
-
 
     scene.onBeforeRenderObservable.add(() => {
       const forward = camera.getDirection(Vector3.Forward());
@@ -201,8 +206,6 @@ const BabylonScene = () => {
         <div>Beta（ピッチ）: {orientation.beta.toFixed(1)}°</div>
         <div>Gamma（ロール）: {orientation.gamma.toFixed(1)}°</div>
         <hr style={{ margin: '8px 0', borderColor: '#444' }} />
-        <div>X軸移動距離: {movement.x.toFixed(2)} m</div>
-        <div>Z軸移動距離: {movement.z.toFixed(2)} m</div>
       </div>
     </>
   );
