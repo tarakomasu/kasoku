@@ -107,36 +107,10 @@ const BabylonScene = () => {
       }
     };
 
-    const handleMotion = (event: DeviceMotionEvent) => {
-      const now = Date.now();
-      if (lastUpdateTimeRef.current == null) {
-        lastUpdateTimeRef.current = now;
-        return;
-      }
 
-      const dt = (now - lastUpdateTimeRef.current) / 1000; // 秒
-      lastUpdateTimeRef.current = now;
-
-      const acc = event.accelerationIncludingGravity;
-      if (!acc || acc.x === null || acc.z === null) return;
-
-      const ax = acc.x; // m/s²
-      const az = acc.z; // m/s²
-
-      velocityRef.current.x += ax * dt;
-      velocityRef.current.z += az * dt;
-
-      positionRef.current.x += velocityRef.current.x * dt;
-      positionRef.current.z += velocityRef.current.z * dt;
-
-      setMovement({
-        x: positionRef.current.x,
-        z: positionRef.current.z
-      });
-    };
 
     window.addEventListener('deviceorientation', handleOrientation, true);
-    window.addEventListener('devicemotion', handleMotion, true);
+
 
     scene.onBeforeRenderObservable.add(() => {
       const forward = camera.getDirection(Vector3.Forward());
@@ -167,7 +141,6 @@ const BabylonScene = () => {
       engine.dispose();
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('deviceorientation', handleOrientation);
-      window.removeEventListener('devicemotion', handleMotion);
     };
   }, [permissionGranted]);
 
