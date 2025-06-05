@@ -97,6 +97,8 @@ const BabylonScene = () => {
             -beta + Math.PI / 2,
             alpha * 0.01
           );
+        camera.rotationQuaternion = Quaternion.FromRotationMatrix(rotationMatrix);
+
         }
         else{
           rotationMatrix= Matrix.RotationYawPitchRoll(
@@ -104,8 +106,9 @@ const BabylonScene = () => {
             -beta + Math.PI / 2,
             alpha * 0.01
           );
-        }
         camera.rotationQuaternion = Quaternion.FromRotationMatrix(rotationMatrix);
+
+        }
 
         setOrientation({
           alpha: event.alpha,
