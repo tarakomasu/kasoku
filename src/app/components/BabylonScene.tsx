@@ -93,7 +93,7 @@ const BabylonScene = () => {
 
         if (fixedBeta > 85 && fixedBeta < 95) {
           rotationMatrix= Matrix.RotationYawPitchRoll(
-            0,
+            gamma * 0.01,
             -beta + Math.PI / 2,
             alpha * 0.01
           );
